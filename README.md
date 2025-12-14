@@ -274,7 +274,13 @@ You can also use the story engine programmatically:
 
 ```python
 import sys
-sys.path.append('C:/Users/Jun/snowflake-writer')
+import os
+
+# Add skill directory to Python path (portable across systems)
+skill_dir = os.path.dirname(os.path.abspath(__file__))
+if skill_dir not in sys.path:
+    sys.path.insert(0, skill_dir)
+
 from story_engine import *
 
 # Initialize project

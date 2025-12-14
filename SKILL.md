@@ -397,7 +397,13 @@ NEXT RECOMMENDED ACTION:
 1. **Always load context before starting a step**:
    ```python
    import sys
-   sys.path.append('C:/Users/Jun/snowflake-writer')
+   import os
+
+   # Add skill directory to Python path (portable across systems)
+   skill_dir = os.path.dirname(os.path.abspath(__file__))
+   if skill_dir not in sys.path:
+       sys.path.insert(0, skill_dir)
+
    from story_engine import get_context, save_step_output
 
    context = get_context(step_number)
