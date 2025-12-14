@@ -1,4 +1,6 @@
-# User Projects (exclude all except the example)
+# User Projects
+# Exclude all user-created novel projects to protect privacy and keep repo clean
+# Only the example project "shadows_of_tomorrow" is tracked for demonstration
 snowflake_projects/*
 !snowflake_projects/shadows_of_tomorrow/
 
@@ -11,25 +13,43 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+*.egg
 
 # Virtual Environment
 venv/
 env/
 ENV/
+.venv
 
-# IDE
+# IDE and Editors
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
 *.log
+desktop.ini
+*.lnk
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~.nib
+.cache/
