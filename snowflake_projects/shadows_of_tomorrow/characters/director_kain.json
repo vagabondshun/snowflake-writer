@@ -1,0 +1,29 @@
+{
+  "name": "Director Kain",
+  "last_updated": "2025-12-14T07:04:50.577872",
+  "role": "antagonist",
+  "motivation": "Control Elena and prevent program exposure",
+  "values": [
+    "order",
+    "control",
+    "pragmatism"
+  ],
+  "ambition": "Maintain the witness protection system he created",
+  "concrete_goal": "Keep Elena dual identity hidden, eliminate threats",
+  "conflict": "Believed program would save lives but created monsters instead",
+  "epiphany": "Cannot control everything (dies before accepting)",
+  "arc": "From calculated controller to desperate failure",
+  "physical_description": {
+    "age": 52,
+    "height": "6ft 1in",
+    "build": "Going soft from desk work",
+    "eye_color": "Gray, cold",
+    "hair": "Salt-and-pepper, military cut",
+    "distinctive_features": "Mechanical right hand, neural augs at temples"
+  },
+  "mannerisms": {
+    "speech": "Clipped military precision, refers to people as assets",
+    "habits": "Checks monitoring systems compulsively",
+    "tics": "Flexes mechanical hand when agitated"
+  }
+}

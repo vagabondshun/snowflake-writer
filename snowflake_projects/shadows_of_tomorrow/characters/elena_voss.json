@@ -1,0 +1,35 @@
+{
+  "name": "Elena Voss",
+  "last_updated": "2025-12-14T07:04:50.576993",
+  "role": "protagonist",
+  "motivation": "Uncover the truth about the murders and her own past",
+  "values": [
+    "truth",
+    "justice",
+    "autonomy",
+    "protecting the vulnerable"
+  ],
+  "ambition": "To help victims of corporate memory manipulation reclaim their identities",
+  "concrete_goal": "Discover who has been editing her memories and why, while solving the murder case",
+  "conflict": "Her commitment to truth conflicts with the terrifying reality that the truth makes her a murderer",
+  "epiphany": "Identity isn't about erasing the past but integrating all parts of yourself, even the dark ones",
+  "arc": "From fragmented denial to integrated acceptance",
+  "physical_description": {
+    "age": 28,
+    "height": "5ft 7in",
+    "build": "Athletic but lean, trained reflexes",
+    "eye_color": "Dark brown, almost black",
+    "hair": "Black, usually in practical ponytail",
+    "distinctive_features": "Small scar above left eyebrow, neural implant port behind right ear, callused fingers"
+  },
+  "mannerisms": {
+    "speech": "Speaks softly but precisely, technical jargon mixed with street slang",
+    "habits": "Touches implant port when stressed, compulsively records everything after First Disaster",
+    "tics": "Left hand tremor when Wraith is close to surfacing"
+  },
+  "backstory": {
+    "as_wraith": "Corporate assassin for 8 years, witnessed corruption, agreed to testify",
+    "as_elena": "Woke 5 years ago with fabricated memories, drawn to memory recovery work",
+    "formative_event": "The mind-wipe procedure at age 23"
+  }
+}

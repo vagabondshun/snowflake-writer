@@ -1,0 +1,29 @@
+{
+  "name": "Dr. Yuki Tanaka",
+  "last_updated": "2025-12-14T07:04:50.578241",
+  "role": "supporting - mentor/foil",
+  "motivation": "Practice memory recovery ethically, atone for past",
+  "values": [
+    "medical ethics",
+    "consent",
+    "redemption"
+  ],
+  "ambition": "Atone for developing memory-wipe technology",
+  "concrete_goal": "Guide Elena through safe recovery without breakdown",
+  "conflict": "Knows more about Elena past than she admits, was part of wipe team",
+  "epiphany": "Protecting someone means revealing painful truths",
+  "arc": "From guilty secret-keeper to honest truth-teller",
+  "physical_description": {
+    "age": 45,
+    "height": "5ft 4in",
+    "build": "Slight, delicate surgeon hands",
+    "eye_color": "Dark brown",
+    "hair": "Black with gray streaks in professional bun",
+    "distinctive_features": "Reading glasses on chain, no neural augs, hand tremor"
+  },
+  "mannerisms": {
+    "speech": "Gentle therapeutic tone, careful word choice",
+    "habits": "Makes tea during difficult conversations, meticulous notes",
+    "tics": "Touches throat when guilty, avoids eye contact when lying"
+  }
+}

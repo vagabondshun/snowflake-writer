@@ -1,0 +1,29 @@
+{
+  "name": "Marcus Chen",
+  "last_updated": "2025-12-14T07:04:50.577494",
+  "role": "supporting - ally",
+  "motivation": "Protect Elena and expose corporate corruption",
+  "values": [
+    "loyalty",
+    "idealism",
+    "transparency"
+  ],
+  "ambition": "Bring down corporate systems that destroy lives",
+  "concrete_goal": "Help Elena recover memories safely and publish the expose",
+  "conflict": "Idealistic belief in Elena goodness clashes with evidence of violence",
+  "epiphany": "Loyalty means standing by someone even when you see their darkness",
+  "arc": "From naive idealist to mature advocate",
+  "physical_description": {
+    "age": 30,
+    "height": "5ft 10in",
+    "build": "Average, non-athletic",
+    "eye_color": "Brown",
+    "hair": "Black, perpetually messy",
+    "distinctive_features": "Wears old-fashioned glasses, ink stains on fingers"
+  },
+  "mannerisms": {
+    "speech": "Fast-talker when excited, quotes revolutionary literature",
+    "habits": "Takes notes on everything, compulsive fact-checker",
+    "tics": "Adjusts glasses when nervous, drums fingers when thinking"
+  }
+}

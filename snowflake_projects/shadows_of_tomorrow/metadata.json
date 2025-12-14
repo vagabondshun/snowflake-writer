@@ -1,0 +1,40 @@
+{
+  "title": "Shadows of Tomorrow",
+  "created": "2025-12-14T06:06:40.991798",
+  "last_modified": "2025-12-14T06:57:17.988118",
+  "current_step": 10,
+  "completed_steps": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "disasters": [
+    {
+      "level": 1,
+      "description": "Elena discovers fragmented memories proving she committed a murder, plus evidence of 3-year mind-editing campaign",
+      "logged_at": "2025-12-14T06:10:47.059796"
+    },
+    {
+      "level": 2,
+      "description": "Elena learns she has a dual personality from failed corporate witness protection mind-wipe",
+      "logged_at": "2025-12-14T06:10:47.068896"
+    },
+    {
+      "level": 3,
+      "description": "Her assassin personality kills her former handler and frames Elena's only ally",
+      "logged_at": "2025-12-14T06:10:47.077488"
+    }
+  ],
+  "settings": {
+    "genre": null,
+    "target_word_count": 80000,
+    "pov_style": null
+  }
+}

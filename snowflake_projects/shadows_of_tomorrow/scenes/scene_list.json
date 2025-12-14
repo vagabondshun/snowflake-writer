@@ -1,0 +1,42 @@
+[
+  {
+    "scene_number": 1,
+    "pov_character": "Elena",
+    "gist": "Elena recovers memories for corporate accountant client",
+    "conflict": "Client fears the truth but needs it",
+    "disaster": "Recovery succeeds but Elena glimpses her own fragmented memories",
+    "outcome": "Elena decides to hack her own implant"
+  },
+  {
+    "scene_number": 2,
+    "pov_character": "Elena",
+    "gist": "Marcus visits, they discuss the murder investigation",
+    "conflict": "Marcus wants to go public, Elena wants more proof",
+    "disaster": "Elena reveals unnamed guilt she cannot explain",
+    "outcome": "Marcus leaves worried about her mental state"
+  },
+  {
+    "scene_number": 3,
+    "pov_character": "Elena",
+    "gist": "Elena hacks her own implant for enhanced pattern recognition",
+    "conflict": "Procedure is dangerous but she needs the upgrade",
+    "disaster": "Flood of self-incriminating memories - she sees herself murdering",
+    "outcome": "Elena discovers memory-editing software in her implant"
+  },
+  {
+    "scene_number": 4,
+    "pov_character": "Marcus",
+    "gist": "Marcus investigates corporate connections to murders",
+    "conflict": "Following digital trail while avoiding detection",
+    "disaster": "Finds evidence pointing to classified witness protection program",
+    "outcome": "Decides to tell Elena about the program"
+  },
+  {
+    "scene_number": 5,
+    "pov_character": "Elena",
+    "gist": "Elena spirals into paranoia reviewing her recovered memories",
+    "conflict": "Cannot trust own memories or perceptions",
+    "disaster": "Realizes Marcus could be implanted construct",
+    "outcome": "Pushes Marcus away to protect him"
+  }
+]

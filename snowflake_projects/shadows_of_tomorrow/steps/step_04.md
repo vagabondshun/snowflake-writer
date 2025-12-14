@@ -1,0 +1,27 @@
+# Step 4: One-Page Summary
+
+Generated: 2025-12-14T06:31:13.564851
+
+---
+
+# One-Page Summary
+
+**THE SETUP (Act 1 - First 25%)**
+
+Elena Voss operates an illegal memory-recovery clinic in the neon-soaked underbelly of Neo-Shanghai, specializing in helping victims whose memories have been erased by corporate "cleanup programs." Her clients are whistleblowers, former employees, and anyone who crossed a megacorp and paid the price with their minds. While running the clinic provides cover, Elena's true obsession is tracking a serial killer who targets people with modified neural implants—five victims so far, each murder more elaborate than the last. The police have closed the cases, attributing the deaths to "implant malfunction," but Elena knows better. She's been secretly investigating for months, collecting evidence the authorities refuse to see.
+
+**FIRST DISASTER (Act 1 Climax - 25% Mark)**
+
+When Elena illegally hacks her own neural implant to boost her investigative capabilities—pushing past the safety limiters to access deeper pattern recognition—something goes catastrophically wrong. Instead of enhanced abilities, she unlocks fragmented memories that don't fit her life: blood on her hands, faces contorted in terror, the weight of a neural disruptor in her grip. Worse, when she cross-references these recovered memories with her investigation files, the timestamps match the murders she's been investigating. The evidence is undeniable and terrifying—the memories show her committing the crimes. Simultaneously, she discovers sophisticated editing software has been running in her implant's background processes for over three years, systematically suppressing and modifying her memories. Someone has been controlling what she remembers, and they've been doing it since before the murders started.
+
+**SECOND DISASTER (Midpoint - 50% Mark)**
+
+Elena traces the editing software's signature to a classified corporate program and breaks into the archived servers, where she uncovers her own file in a witness protection database. The truth rewrites everything she thought she knew: five years ago, she was a corporate "asset eliminator"—an assassin who handled problems too sensitive for legal channels. When she witnessed executive-level corruption that endangered millions, she agreed to testify in exchange for a revolutionary mind-wipe procedure that would give her a completely new identity. But the experimental procedure didn't work as intended—instead of replacing her personality, it created a partition, leaving her with two separate identities that share the same body. Her "Elena Voss" personality has no knowledge of the assassin she used to be, but the original personality—codenamed "Wraith"—has been surfacing periodically, continuing to operate as a killer while Elena sleeps. The five murder victims weren't random; they were all connected to the corruption case she was supposed to testify about, systematically eliminated by her other self.
+
+**THIRD DISASTER (Act 3 Setup - 75% Mark)**
+
+Elena arranges a confrontation with Director Kain, her former handler and the architect of the failed mind-wipe program, hoping to find a way to suppress the Wraith personality permanently. But during the meeting, she experiences a dissociative episode and Wraith resurfaces in the middle of the conversation. Wraith—who views Kain as a betrayer who tried to erase her—kills him brutally while Elena remains conscious but unable to control her own body, forced to watch helplessly from behind her own eyes. Kain's security AI automatically frames Marcus Chen, Elena's closest ally and only friend, for the murder, uploading fabricated evidence to law enforcement databases. Elena regains control to find Kain dead, Marcus arrested and facing execution, and herself holding the murder weapon with no way to prove her dissociative state. She faces an impossible choice: she can upload a kill-code that will completely erase the Wraith personality and all associated memories, finally ending the murders—but the code will also destroy her own neural implant in the process, causing severe cognitive damage and possibly erasing Elena herself in the process.
+
+**RESOLUTION (Climax & Ending - 100% Mark)**
+
+Rather than destroying either personality, Elena makes a radical choice: she uses her memory-recovery expertise to force integration, deliberately breaking down the partition between her two selves and experiencing all of Wraith's memories simultaneously. The process is agonizing and nearly destroys her psyche, but she emerges as a unified person who remembers both lives and accepts responsibility for both. With her combined skill sets—Wraith's tactical expertise and Elena's investigative abilities—she breaks Marcus out of custody and works with him to expose the entire corrupt witness protection program, revealing hundreds of failed cases like hers. She surrenders to face trial for her crimes, but the evidence she provides brings down the executives responsible for both the original corruption and the disastrous cover-up. The novel ends with Elena testifying—this time fully herself, remembering everything—and Marcus advocating for reformed sentencing laws that recognize the reality of corporate mind-crimes. Elena creates a new identity not through erasure but through acceptance: she is both the person who killed and the person who seeks justice, and she chooses accountability over escape.
