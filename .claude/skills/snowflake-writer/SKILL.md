@@ -1,8 +1,3 @@
----
-name: snowflake-writer
-description: Implement the Snowflake Method for long-form fiction writing through a 10-step fractal process. Use when creating novels, developing story structures, building characters, planning scenes, or writing narrative fiction. Handles genre fiction, literary fiction, and creative storytelling from concept to draft.
----
-
 # Snowflake Writer - Fractal Narrative Skill
 
 A Claude Code skill implementing the **Snowflake Method** for long-form fiction writing through multi-agent simulation.
@@ -42,6 +37,34 @@ Show current progress and perform a health check on story logic.
 ```
 snowflake status
 ```
+
+### `snowflake list`
+List all available projects in the workspace.
+
+**Example:**
+```
+snowflake list
+```
+
+### `snowflake pov [enable/disable]`
+Enable or disable POV mode for the current project.
+
+**Examples:**
+```
+snowflake pov disable   # Disable POV for non-POV or omniscient narrator
+snowflake pov enable    # Enable POV for traditional POV-based scenes
+```
+
+**When to disable POV mode:**
+- Writing omniscient narrator stories
+- Experimental or postmodern narratives
+- Stories with detached perspective
+- When POV tracking feels restrictive
+
+**When to enable POV mode:** (Default)
+- Traditional 1st/3rd person POV stories
+- Character-driven narratives
+- When consistency is crucial
 
 ---
 
@@ -359,37 +382,45 @@ When this skill is activated, Claude must operate under the following protocol:
 
 ## Health Check Logic (for `snowflake status`)
 
-When user runs `snowflake status`, Agent-Alpha performs diagnostics:
+When user runs `snowflake status`, Agent-Alpha performs enhanced diagnostics:
 
-1. **Structural Integrity**:
+1. **Structural Integrity** (Critical Issues):
    - Are the 3 disasters logged by Step 2?
-   - Do character goals align with plot conflicts?
-   - Does scene count match target word count?
+   - Are characters defined after Step 3?
+   - Are scenes defined after Step 8?
 
-2. **Consistency Warnings**:
-   - Character details contradicting between steps
+2. **Consistency Warnings** (Non-Critical):
+   - Missing POV characters in Character Bible (only checked if POV mode enabled)
+   - Character role completeness (protagonist, antagonist)
+   - Scene count balance vs target word count
    - Timeline gaps in scene list
-   - Missing POV characters in Character Bible
 
 3. **Progress Report**:
    - Steps completed
+   - Completion percentage (weighted by step importance)
    - Characters defined
    - Scenes planned
-   - Estimated completion percentage
+   - Scenes drafted
+   - Target word count
 
 **Output Format**:
 ```
 PROJECT: [Title]
 CURRENT STEP: [Number]
 COMPLETED: Steps [list]
+COMPLETION: [X]%
 
 INVENTORY:
 - Characters: [count]
 - Scenes Planned: [count]
+- Scenes Drafted: [count]
 - Disasters Defined: [count]/3
+- Target Word Count: [count]
 
 HEALTH CHECK:
-[✓] or [!] for each diagnostic
+[!] Critical Issues: [list]
+[⚠] Warnings: [list]
+[✓] All systems operational (if no issues)
 
 NEXT RECOMMENDED ACTION:
 [Suggestion based on current state]
@@ -398,6 +429,42 @@ NEXT RECOMMENDED ACTION:
 ---
 
 ## Implementation Notes for Claude
+
+### POV Mode Configuration
+
+**Default Behavior**: POV mode is ENABLED by default for all new projects.
+
+**When POV mode is enabled** (use_pov_mode: true):
+- Scene lists should include `pov_character` field
+- Step 9 (Scene Architecture) should specify whose perspective the scene follows
+- Step 10 (Drafting) must load Character Bible data for the POV character
+- Health checks verify that all POV characters exist in Character Bible
+
+**When POV mode is disabled** (use_pov_mode: false):
+- Scene lists can omit `pov_character` field
+- Write scenes from omniscient narrator or detached perspective
+- Don't require specific character perspective in drafting
+- Health checks skip POV-related validations
+
+**To check or change POV mode**:
+```python
+# Check current mode
+pov_enabled = get_pov_mode()
+
+# Disable POV mode
+set_pov_mode(False)
+
+# Enable POV mode
+set_pov_mode(True)
+```
+
+**User command**:
+```
+snowflake pov disable  # For omniscient narrator
+snowflake pov enable   # For POV-based narrative
+```
+
+---
 
 1. **Always load context before starting a step**:
    ```python
@@ -417,17 +484,27 @@ NEXT RECOMMENDED ACTION:
 2. **Save outputs immediately after generation**:
    ```python
    save_step_output(step_number, generated_content, step_name)
+   # This now automatically updates metadata.completed_steps
    ```
 
-3. **Character consistency is non-negotiable**:
+3. **Save scene plans and drafts**:
+   ```python
+   # For Step 9 (Scene Architecture)
+   save_scene_plan(scene_number, plan_content)
+
+   # For Step 10 (Drafting)
+   save_scene_draft(scene_number, prose_content)
+   ```
+
+4. **Character consistency is non-negotiable**:
    - Before writing dialogue in Step 10, re-read the character's profile
    - If a detail wasn't established earlier, flag it and ask user
 
-4. **User is the creative authority**:
+5. **User is the creative authority**:
    - Offer suggestions, but defer to user choices
    - Never override user decisions with "better" ideas unsolicited
 
-5. **Token management**:
+6. **Token management**:
    - Use `get_context(step)` to load only relevant data
    - Summarize previous steps if context becomes large
    - For Step 10, load scenes individually, not all at once
@@ -505,9 +582,8 @@ Proceed to Step 2 to expand your hook into a 5-sentence structure.
 - Track authorship of character edits
 
 ### Export Formats
-- Generate Markdown manuscript
-- Export to Scrivener-compatible format
-- Create PDF character sheets
+- Export full manuscript as single Markdown file (combining all scenes)
+- Export individual scene drafts as Markdown files (already supported)
 
 ### AI-Assisted Brainstorming
 - Generate alternative disaster options in Step 2

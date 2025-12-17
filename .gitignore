@@ -53,3 +53,7 @@ htmlcov/
 *.swp
 *~.nib
 .cache/
+
+# Distribution files
+*.zip
+*.tar.gz
