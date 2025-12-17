@@ -63,6 +63,10 @@ class SnowflakeEngine:
             "misses": 0
         }
 
+        # RAG style system (lazy loading)
+        self._style_rag = None
+        self._style_rag_enabled = False
+
     def _validate_scene(self, scene: Dict[str, Any]) -> None:
         """
         Validate scene structure.
@@ -843,6 +847,151 @@ class SnowflakeEngine:
             "target_word_count": metadata.get("settings", {}).get("target_word_count", 80000)
         }
 
+    # ==================== Style RAG System ====================
+
+    def _init_style_rag(self):
+        """初始化RAG系统（延迟加载）"""
+        if self._style_rag is not None:
+            return
+
+        if not self.current_project:
+            raise NoProjectLoadedError("No project currently loaded. Use init_project() or load_project() first.")
+
+        try:
+            from style_rag import StyleRAG, check_dependencies, install_instructions
+
+            # 检查依赖
+            deps = check_dependencies()
+            if not deps["all_available"]:
+                missing = [k for k, v in deps.items() if k != "all_available" and not v]
+                raise SnowflakeError(
+                    f"RAG系统依赖未安装: {', '.join(missing)}\n\n" + install_instructions()
+                )
+
+            self._style_rag = StyleRAG(self.current_project)
+            self._style_rag_enabled = True
+
+        except ImportError as e:
+            raise SnowflakeError(
+                f"无法导入style_rag模块: {str(e)}\n"
+                "请确保style_rag.py在同一目录下。"
+            )
+
+    def enable_style_rag(self) -> Dict[str, Any]:
+        """
+        启用RAG风格系统
+
+        Returns:
+            系统状态信息
+
+        Raises:
+            SnowflakeError: 如果依赖未安装或初始化失败
+        """
+        self._init_style_rag()
+        return {
+            "enabled": True,
+            "statistics": self._style_rag.get_statistics()
+        }
+
+    def is_style_rag_enabled(self) -> bool:
+        """检查RAG系统是否已启用"""
+        return self._style_rag_enabled and self._style_rag is not None
+
+    def add_style_reference(
+        self,
+        title: str,
+        content: str,
+        author: str = None,
+        chunk_size: int = 500,
+        max_chunks: int = 100
+    ) -> Dict[str, Any]:
+        """
+        添加参考小说到RAG系统
+
+        Args:
+            title: 小说标题
+            content: 小说全文
+            author: 作者（可选）
+            chunk_size: 分块大小（字符数）
+            max_chunks: 最大块数
+
+        Returns:
+            添加结果统计
+
+        Example:
+            with open('reference.txt', 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            result = engine.add_style_reference(
+                title="百年孤独",
+                content=content,
+                author="加西亚·马尔克斯"
+            )
+        """
+        self._init_style_rag()
+        return self._style_rag.add_reference_novel(
+            title=title,
+            content=content,
+            author=author,
+            chunk_size=chunk_size,
+            max_chunks=max_chunks
+        )
+
+    def list_style_references(self) -> List[Dict[str, Any]]:
+        """列出所有风格参考"""
+        if not self.is_style_rag_enabled():
+            return []
+        return self._style_rag.list_references()
+
+    def remove_style_reference(self, ref_id: str) -> bool:
+        """删除指定的风格参考"""
+        self._init_style_rag()
+        return self._style_rag.remove_reference(ref_id)
+
+    def clear_style_references(self):
+        """清除所有风格参考"""
+        self._init_style_rag()
+        self._style_rag.clear_all_references()
+
+    def get_style_context_for_scene(
+        self,
+        scene_description: str,
+        scene_type: Optional[str] = None,
+        n_samples: int = 3
+    ) -> Optional[Dict[str, Any]]:
+        """
+        获取场景的风格上下文（用于Step 10草稿生成）
+
+        Args:
+            scene_description: 场景描述
+            scene_type: 场景类型 ('dialogue', 'action', 'narrative')
+            n_samples: 样本数量
+
+        Returns:
+            风格上下文，如果RAG未启用则返回None
+        """
+        if not self.is_style_rag_enabled():
+            return None
+
+        return self._style_rag.get_style_context(
+            scene_description=scene_description,
+            scene_type=scene_type,
+            n_samples=n_samples
+        )
+
+    def get_rag_statistics(self) -> Dict[str, Any]:
+        """获取RAG系统统计信息"""
+        if not self.is_style_rag_enabled():
+            return {
+                "enabled": False,
+                "reference_count": 0,
+                "total_chunks": 0
+            }
+
+        stats = self._style_rag.get_statistics()
+        stats["enabled"] = True
+        return stats
+
 
 # Convenience functions for direct use
 _engine = None
@@ -923,3 +1072,33 @@ def get_cache_stats() -> Dict[str, int]:
 def clear_cache_stats() -> None:
     """Reset cache statistics."""
     get_engine().clear_cache_stats()
+
+
+def enable_style_rag() -> Dict[str, Any]:
+    """Enable RAG style system."""
+    return get_engine().enable_style_rag()
+
+
+def is_style_rag_enabled() -> bool:
+    """Check if RAG style system is enabled."""
+    return get_engine().is_style_rag_enabled()
+
+
+def add_style_reference(title: str, content: str, author: str = None) -> Dict[str, Any]:
+    """Add a reference novel to RAG system."""
+    return get_engine().add_style_reference(title, content, author)
+
+
+def list_style_references() -> List[Dict[str, Any]]:
+    """List all style references."""
+    return get_engine().list_style_references()
+
+
+def remove_style_reference(ref_id: str) -> bool:
+    """Remove a style reference."""
+    return get_engine().remove_style_reference(ref_id)
+
+
+def get_rag_statistics() -> Dict[str, Any]:
+    """Get RAG system statistics."""
+    return get_engine().get_rag_statistics()

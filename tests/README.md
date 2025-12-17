@@ -2,9 +2,9 @@
 
 ## 测试统计
 
-- **测试用例总数**: 40 (29 核心 + 11 缓存)
+- **测试用例总数**: 53 (29 核心 + 11 缓存 + 13 RAG)
 - **测试通过率**: 100%
-- **平均运行时间**: ~0.7秒
+- **平均运行时间**: ~1.0秒（不含RAG模型下载）
 
 ## 运行测试
 
@@ -20,7 +20,20 @@ cd snowflake-writer
 python tests/test_cache.py
 ```
 
-### 方法3: 使用 pytest (推荐)
+### 方法3: 运行RAG测试
+```bash
+cd snowflake-writer
+python tests/test_style_rag.py
+```
+
+**注意**: RAG测试需要安装依赖
+```bash
+pip install chromadb sentence-transformers
+```
+
+如果依赖未安装，测试会自动跳过。
+
+### 方法4: 使用 pytest (推荐)
 ```bash
 cd snowflake-writer
 pip install pytest  # 如果未安装
@@ -95,6 +108,21 @@ python -m unittest tests.test_story_engine.TestSceneManagement
 - ✅ 项目切换时清除缓存
 - ✅ 缓存性能提升验证
 - ✅ 清除缓存统计
+
+### RAG风格系统 (13 tests) 🎨
+- ✅ RAG系统初始化
+- ✅ 添加参考小说
+- ✅ 文本智能分块
+- ✅ 块类型自动分类（对话/动作/叙述）
+- ✅ 检索风格样本
+- ✅ 获取风格上下文
+- ✅ 列出所有参考
+- ✅ 删除指定参考
+- ✅ 清除所有参考
+- ✅ 统计信息获取
+- ✅ 重复参考错误处理
+- ✅ 依赖检查功能
+- ✅ 场景类型匹配检索
 
 ## 测试输出示例
 

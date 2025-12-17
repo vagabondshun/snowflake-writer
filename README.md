@@ -367,11 +367,76 @@ engine.clear_cache_stats()
 
 The caching system is completely transparent - no code changes needed to benefit from it!
 
+## RAG Style System (v1.5)
+
+The skill now includes an optional **RAG (Retrieval-Augmented Generation)** system that lets your novel mimic the writing style of reference works.
+
+**Features**:
+- 🎨 **Automatic style learning** from reference novels
+- 🔍 **Smart retrieval** of similar scene samples
+- 💡 **Context-aware** style guidance for Step 10 drafting
+- 📊 **Vector search** ensures style consistency
+
+### Installation
+
+Install optional dependencies:
+```bash
+pip install chromadb sentence-transformers
+```
+
+**Note**: First run will download models (~90MB), requires good network connection.
+
+### Quick Start
+
+```python
+from story_engine import *
+
+# Initialize project
+init_project("My Novel")
+
+# Enable RAG system
+enable_style_rag()
+
+# Add reference novel
+with open('reference.txt', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+add_style_reference(
+    title="One Hundred Years of Solitude",
+    content=content,
+    author="Gabriel García Márquez"
+)
+
+# RAG will automatically provide style samples during Step 10 drafting
+# Get style samples for a scene
+engine = get_engine()
+samples = engine.get_style_context_for_scene(
+    scene_description="Protagonist recalls childhood memories",
+    scene_type="narrative",
+    n_samples=3
+)
+```
+
+### Token Cost Impact
+
+| Samples | Characters | Token Increase | Cost (Sonnet) |
+|---------|-----------|----------------|---------------|
+| 1 sample | ~500 chars | +600 tokens | $0.0018 |
+| 3 samples | ~1500 chars | +1800 tokens | $0.0054 |
+| 5 samples | ~2500 chars | +3000 tokens | $0.009 |
+
+For a 60-scene novel using 3 samples per scene: ~$0.32 USD additional cost.
+
+### See Also
+
+- [RAG_USAGE.md](RAG_USAGE.md) - Complete RAG usage guide
+- [tests/test_style_rag.py](tests/test_style_rag.py) - RAG test examples
+
 ## Credits
 
 - **Snowflake Method**: Created by Randy Ingermanson
 - **Skill Architecture**: Custom implementation for Claude Code
-- **Version**: 1.4
+- **Version**: 1.5
 
 ## Support
 

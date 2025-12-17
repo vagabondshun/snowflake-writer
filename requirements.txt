@@ -1,0 +1,14 @@
+# Snowflake Writer - Requirements
+
+# RAG风格系统依赖（可选）
+# 如果需要使用风格模仿功能，请安装以下依赖：
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# 注意：
+# - sentence-transformers 会自动安装PyTorch，首次安装可能较大（~1GB）
+# - 首次运行会下载embedding模型（约90MB），请确保网络连接
+# - 如果不需要RAG功能，可以不安装这些依赖
+
+# 安装命令：
+# pip install chromadb sentence-transformers

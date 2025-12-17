@@ -57,3 +57,11 @@ htmlcov/
 # Distribution files
 *.zip
 *.tar.gz
+
+# RAG System
+# Exclude ChromaDB files and style references (contain user data)
+**/.chroma/
+**/style_references/
+
+# Embedding model cache
+.cache/torch/

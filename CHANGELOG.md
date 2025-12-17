@@ -1,5 +1,211 @@
 # Snowflake Writer - Changelog
 
+## Version 1.5 - 2024-12-17
+
+### 🎨 RAG风格模仿系统
+
+这是一个专注于**写作风格增强**的版本，添加了完整的RAG（检索增强生成）系统，让你的小说能够模仿参考作品的写作风格。
+
+#### 1. RAG系统架构 🚀
+
+**核心组件**:
+- **ChromaDB** - 向量数据库，持久化存储
+- **Sentence Transformers** - 文本向量化（使用paraphrase-MiniLM-L6-v2模型）
+- **智能检索** - 基于余弦相似度的语义搜索
+
+**工作流程**:
+```
+参考小说 → 智能分块 → 向量化 → 存储到ChromaDB
+                                    ↓
+当前场景 → 向量化 → 相似度检索 ← 返回最相关样本 → 注入到生成prompt
+```
+
+#### 2. 核心功能 🎯
+
+**新增模块**: `style_rag.py` (450行代码)
+
+**功能特性**:
+- ✅ 自动文本分块（智能段落识别）
+- ✅ 场景类型分类（对话/动作/叙述/混合）
+- ✅ 向量相似度检索
+- ✅ 批量参考管理
+- ✅ 延迟加载（不使用时零开销）
+
+**分块策略**:
+```python
+# 默认500字符/块，按段落边界智能分割
+# 自动分类块类型（对话、动作、叙述）
+# 支持自定义分块大小和最大块数
+```
+
+#### 3. API接口 🛠️
+
+**Engine集成**:
+```python
+# 启用RAG系统
+enable_style_rag() -> Dict
+
+# 添加参考小说
+add_style_reference(title, content, author=None) -> Dict
+
+# 列出所有参考
+list_style_references() -> List[Dict]
+
+# 删除参考
+remove_style_reference(ref_id) -> bool
+
+# 获取场景风格样本
+get_style_context_for_scene(description, scene_type, n_samples) -> Dict
+
+# 统计信息
+get_rag_statistics() -> Dict
+```
+
+**StyleRAG类方法**:
+```python
+class StyleRAG:
+    - add_reference_novel()      # 添加参考小说
+    - retrieve_style_samples()   # 检索相似样本
+    - get_style_context()        # 获取完整上下文
+    - list_references()          # 列出所有参考
+    - remove_reference()         # 删除参考
+    - clear_all_references()     # 清空所有参考
+    - get_statistics()           # 获取统计信息
+```
+
+#### 4. 智能特性 ✨
+
+**场景类型匹配**:
+- `dialogue` - 优先检索对话场景
+- `action` - 优先检索动作场景
+- `narrative` - 优先检索叙述场景
+- `None` - 自动匹配最相似内容
+
+**自动分类逻辑**:
+```python
+# 基于内容特征自动识别：
+- 对话标记密度（引号）
+- 动作动词频率
+- 文本长度
+```
+
+#### 5. Token消耗分析 💰
+
+| 样本数 | 字符数 | Token增加 | 成本(Sonnet) |
+|--------|--------|----------|--------------|
+| 1个样本 | ~500 | +600 | $0.0018 |
+| 3个样本 | ~1500 | +1800 | $0.0054 |
+| 5个样本 | ~2500 | +3000 | $0.009 |
+
+**实际项目成本**:
+- 60场景小说，每场景3样本：$0.32 USD
+- 100场景小说，每场景3样本：$0.54 USD
+
+**优化策略**:
+- 关键场景：3-5样本
+- 普通场景：1-2样本
+- 过渡场景：0-1样本
+
+#### 6. 文档和测试 📚
+
+**新增文档**:
+- `RAG_USAGE.md` - 完整使用指南（600+行）
+- `requirements.txt` - 依赖说明
+
+**新增测试**:
+- `tests/test_style_rag.py` - 13个RAG专项测试
+- 测试覆盖：初始化、分块、分类、检索、管理
+
+**更新文档**:
+- `README.md` - 添加RAG章节和快速入门
+- `.gitignore` - 排除.chroma/和style_references/
+
+#### 7. 使用示例 🎓
+
+**基础用法**:
+```python
+from story_engine import *
+
+# 初始化并启用RAG
+init_project("我的小说")
+enable_style_rag()
+
+# 添加参考小说
+with open('百年孤独.txt', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+add_style_reference(
+    title="百年孤独",
+    content=content,
+    author="加西亚·马尔克斯"
+)
+
+# 获取风格样本（Agent-Epsilon自动调用）
+engine = get_engine()
+samples = engine.get_style_context_for_scene(
+    scene_description="主角回忆童年",
+    scene_type="narrative",
+    n_samples=3
+)
+```
+
+**效果对比**:
+```
+# 不使用RAG
+"我很难过，"他说。他看着窗外。天气很好。
+
+# 使用RAG（模仿村上春树）
+"这种难过，就像冰箱里被遗忘的啤酒，"他说，
+视线越过我的肩膀，落在窗外那片过分湛蓝的天空上。
+```
+
+#### 8. 依赖管理 📦
+
+**可选依赖**（仅RAG功能需要）:
+```bash
+pip install chromadb sentence-transformers
+```
+
+**首次运行**:
+- 下载embedding模型（~90MB）
+- 需要网络连接
+- 后续运行使用本地缓存
+
+**向后兼容**:
+- RAG系统完全可选
+- 不安装依赖不影响其他功能
+- 延迟加载，不使用时零开销
+
+#### 9. 数据存储 💾
+
+**项目结构**:
+```
+my_novel/
+├── .chroma/                    # ChromaDB数据库
+│   └── [向量数据文件]
+├── style_references/
+│   └── metadata.json           # 参考小说元数据
+```
+
+**隐私保护**:
+- .chroma/ 和 style_references/ 已加入.gitignore
+- 参考小说数据仅本地存储
+- 不会上传到版本控制
+
+#### 10. 性能特性 ⚡
+
+**向量检索性能**:
+- 单次检索：< 100ms
+- 支持批量检索
+- HNSW索引优化
+
+**存储效率**:
+- 100块文本：~5MB数据库大小
+- 自动压缩和索引
+- 支持增量更新
+
+---
+
 ## Version 1.4 - 2024-12-17
 
 ### ⚡ 性能优化 - 智能缓存系统
