@@ -91,7 +91,8 @@ class TestStyleRAG(unittest.TestCase):
         chunk_type = self.rag._classify_chunk_type(dialogue)
         self.assertEqual(chunk_type, "dialogue")
 
-        narrative = "那是一个漫长的夏天。阳光透过树叶洒在地上。" * 5
+        # 需要超过300字符才会被分类为 description
+        narrative = "那是一个漫长的夏天。阳光透过树叶洒在地上，形成斑驳的光影。" * 15
         chunk_type = self.rag._classify_chunk_type(narrative)
         self.assertEqual(chunk_type, "description")
 
@@ -190,6 +191,100 @@ class TestStyleRAG(unittest.TestCase):
             self.rag.add_reference_novel("测试小说", self.sample_novel)
 
 
+@unittest.skipIf(not DEPENDENCIES_AVAILABLE, "RAG dependencies not installed")
+class TestFileParser(unittest.TestCase):
+    """测试文件解析功能"""
+
+    def setUp(self):
+        """创建临时测试环境"""
+        self.temp_dir = Path(tempfile.mkdtemp())
+        self.rag = StyleRAG(self.temp_dir)
+
+        # 创建测试TXT文件
+        self.txt_file = self.temp_dir / "test_novel.txt"
+        self.txt_content = """
+        这是一个测试小说的开头。
+
+        第一章
+
+        多年以后，面对行刑队，奥雷里亚诺·布恩迪亚上校将会回想起，
+        他父亲带他去见识冰块的那个遥远的下午。
+
+        "你准备好了吗？"他问道。
+
+        "我准备好了。"她回答。
+        """
+        with open(self.txt_file, 'w', encoding='utf-8') as f:
+            f.write(self.txt_content)
+
+    def tearDown(self):
+        """清理临时目录"""
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_parse_txt_file(self):
+        """测试TXT文件解析"""
+        result = self.rag.parse_file(self.txt_file)
+
+        self.assertIn("content", result)
+        self.assertIn("title", result)
+        self.assertIn("format", result)
+        self.assertEqual(result["format"], "txt")
+        self.assertEqual(result["title"], "test_novel")
+        self.assertGreater(result["char_count"], 0)
+
+    def test_add_reference_from_txt_file(self):
+        """测试从TXT文件添加参考"""
+        result = self.rag.add_reference_from_file(
+            self.txt_file,
+            author="测试作者"
+        )
+
+        self.assertIn("ref_id", result)
+        self.assertIn("source_file", result)
+        self.assertEqual(result["source_format"], "txt")
+        self.assertGreater(result["chunks_added"], 0)
+
+    def test_scan_folder(self):
+        """测试文件夹扫描"""
+        # 创建多个测试文件
+        for i in range(3):
+            file_path = self.temp_dir / f"novel_{i}.txt"
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(f"这是第{i}本测试小说的内容。" * 50)
+
+        result = self.rag.scan_folder(self.temp_dir)
+
+        # 至少应该有4个文件（包括setUp创建的）
+        self.assertGreaterEqual(result["total_files"], 4)
+        self.assertGreaterEqual(result["success_count"], 3)
+        self.assertIn("success", result)
+        self.assertIn("failed", result)
+
+    def test_parse_unsupported_format(self):
+        """测试不支持的文件格式"""
+        unsupported_file = self.temp_dir / "test.doc"
+        unsupported_file.touch()
+
+        with self.assertRaises(Exception):
+            self.rag.parse_file(unsupported_file)
+
+    def test_parse_nonexistent_file(self):
+        """测试不存在的文件"""
+        with self.assertRaises(Exception):
+            self.rag.parse_file(self.temp_dir / "nonexistent.txt")
+
+    def test_txt_encoding_detection(self):
+        """测试TXT编码自动检测"""
+        # 创建GBK编码文件
+        gbk_file = self.temp_dir / "gbk_novel.txt"
+        gbk_content = "这是GBK编码的中文内容。"
+        with open(gbk_file, 'w', encoding='gbk') as f:
+            f.write(gbk_content)
+
+        result = self.rag.parse_file(gbk_file)
+        self.assertIn("这是GBK编码的中文内容", result["content"])
+
+
 class TestDependencyCheck(unittest.TestCase):
     """测试依赖检查功能"""
 
@@ -201,6 +296,19 @@ class TestDependencyCheck(unittest.TestCase):
         self.assertIn("sentence_transformers", deps)
         self.assertIn("all_available", deps)
         self.assertIsInstance(deps["all_available"], bool)
+
+    def test_check_file_parser_dependencies(self):
+        """测试文件解析依赖检查"""
+        try:
+            from style_rag import check_file_parser_dependencies
+            deps = check_file_parser_dependencies()
+
+            self.assertIn("txt", deps)
+            self.assertIn("pdf", deps)
+            self.assertIn("epub", deps)
+            self.assertTrue(deps["txt"])  # TXT应该总是可用
+        except ImportError:
+            self.skipTest("check_file_parser_dependencies not available")
 
 
 if __name__ == '__main__':

@@ -241,7 +241,8 @@ class SnowflakeEngine:
                 "genre": None,
                 "target_word_count": 80000,
                 "pov_style": None,
-                "use_pov_mode": True  # Default to POV mode enabled
+                "use_pov_mode": True,  # Default to POV mode enabled
+                "style_rag_enabled": False  # RAG system disabled by default
             }
         }
 
@@ -286,6 +287,15 @@ class SnowflakeEngine:
 
         # Clear cache when switching projects
         self._clear_cache()
+
+        # Restore RAG state from metadata
+        if metadata.get("settings", {}).get("style_rag_enabled", False):
+            try:
+                self._init_style_rag()
+            except Exception:
+                # If RAG initialization fails, silently continue
+                # User can manually enable it later
+                pass
 
         return metadata
 
@@ -888,6 +898,24 @@ class SnowflakeEngine:
             SnowflakeError: 如果依赖未安装或初始化失败
         """
         self._init_style_rag()
+
+        # Persist RAG enabled state to metadata
+        if self.current_project:
+            metadata_path = self.current_project / "metadata.json"
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+
+            if "settings" not in metadata:
+                metadata["settings"] = {}
+            metadata["settings"]["style_rag_enabled"] = True
+            metadata["last_modified"] = datetime.now().isoformat()
+
+            with open(metadata_path, 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, indent=2)
+
+            # Clear metadata cache
+            self._clear_metadata_cache()
+
         return {
             "enabled": True,
             "statistics": self._style_rag.get_statistics()
@@ -897,13 +925,58 @@ class SnowflakeEngine:
         """检查RAG系统是否已启用"""
         return self._style_rag_enabled and self._style_rag is not None
 
+    def disable_style_rag(self) -> Dict[str, Any]:
+        """
+        禁用RAG风格系统
+
+        Returns:
+            系统状态信息
+        """
+        # Disable RAG system
+        self._style_rag = None
+        self._style_rag_enabled = False
+
+        # Persist RAG disabled state to metadata
+        if self.current_project:
+            metadata_path = self.current_project / "metadata.json"
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+
+            if "settings" not in metadata:
+                metadata["settings"] = {}
+            metadata["settings"]["style_rag_enabled"] = False
+            metadata["last_modified"] = datetime.now().isoformat()
+
+            with open(metadata_path, 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, indent=2)
+
+            # Clear metadata cache
+            self._clear_metadata_cache()
+
+        return {
+            "enabled": False,
+            "message": "RAG风格系统已禁用"
+        }
+
+    def toggle_style_rag(self) -> Dict[str, Any]:
+        """
+        切换RAG风格系统的启用/禁用状态
+
+        Returns:
+            系统状态信息
+        """
+        if self.is_style_rag_enabled():
+            return self.disable_style_rag()
+        else:
+            return self.enable_style_rag()
+
     def add_style_reference(
         self,
         title: str,
         content: str,
         author: str = None,
         chunk_size: int = 500,
-        max_chunks: int = 100
+        max_chunks: int = 200
     ) -> Dict[str, Any]:
         """
         添加参考小说到RAG系统
@@ -991,6 +1064,187 @@ class SnowflakeEngine:
         stats = self._style_rag.get_statistics()
         stats["enabled"] = True
         return stats
+
+    def add_style_reference_from_file(
+        self,
+        file_path: str,
+        title: str = None,
+        author: str = None,
+        chunk_size: int = 500,
+        max_chunks: int = 200
+    ) -> Dict[str, Any]:
+        """
+        从文件添加参考小说到RAG系统
+
+        Args:
+            file_path: 文件路径（支持 .txt, .pdf, .epub）
+            title: 小说标题（可选，默认使用文件名）
+            author: 作者（可选）
+            chunk_size: 分块大小
+            max_chunks: 最大块数
+
+        Returns:
+            添加结果统计
+
+        Example:
+            result = engine.add_style_reference_from_file(
+                "百年孤独.epub",
+                author="加西亚·马尔克斯"
+            )
+        """
+        self._init_style_rag()
+        return self._style_rag.add_reference_from_file(
+            file_path=file_path,
+            title=title,
+            author=author,
+            chunk_size=chunk_size,
+            max_chunks=max_chunks
+        )
+
+    def scan_style_references_folder(
+        self,
+        folder_path: str,
+        author: str = None,
+        chunk_size: int = 500,
+        max_chunks: int = 200,
+        skip_errors: bool = True
+    ) -> Dict[str, Any]:
+        """
+        扫描文件夹并导入所有支持的参考小说
+
+        Args:
+            folder_path: 文件夹路径
+            author: 默认作者（可选）
+            chunk_size: 分块大小
+            max_chunks: 每个文件的最大块数
+            skip_errors: 是否跳过错误继续处理
+
+        Returns:
+            导入结果统计
+
+        Example:
+            result = engine.scan_style_references_folder(
+                "./参考小说/",
+                skip_errors=True
+            )
+        """
+        self._init_style_rag()
+        return self._style_rag.scan_folder(
+            folder_path=folder_path,
+            author=author,
+            chunk_size=chunk_size,
+            max_chunks=max_chunks,
+            skip_errors=skip_errors
+        )
+
+    # ==================== 全局资料库功能 ====================
+
+    def list_global_authors(self, library_path: str = None) -> List[Dict[str, Any]]:
+        """
+        列出全局资料库中的所有作家
+
+        Args:
+            library_path: 资料库路径，默认 ~/style_references
+
+        Returns:
+            作家列表
+        """
+        self._init_style_rag()
+        return self._style_rag.list_global_authors(library_path)
+
+    def scan_author(
+        self,
+        author_name: str,
+        library_path: str = None,
+        chunk_size: int = 500,
+        max_chunks: int = 200
+    ) -> Dict[str, Any]:
+        """
+        导入指定作家的所有作品
+
+        Args:
+            author_name: 作家名（对应子文件夹名）
+            library_path: 资料库路径
+
+        Returns:
+            导入结果
+
+        Example:
+            result = engine.scan_author("马尔克斯")
+        """
+        self._init_style_rag()
+        return self._style_rag.scan_author(
+            author_name=author_name,
+            library_path=library_path,
+            chunk_size=chunk_size,
+            max_chunks=max_chunks
+        )
+
+    def scan_global_library(
+        self,
+        library_path: str = None,
+        authors: List[str] = None,
+        chunk_size: int = 500,
+        max_chunks: int = 200
+    ) -> Dict[str, Any]:
+        """
+        扫描整个全局资料库
+
+        Args:
+            library_path: 资料库路径
+            authors: 指定作家列表，None表示全部
+
+        Returns:
+            导入结果
+
+        Example:
+            # 导入所有
+            result = engine.scan_global_library()
+
+            # 只导入指定作家
+            result = engine.scan_global_library(authors=["马尔克斯", "余华"])
+        """
+        self._init_style_rag()
+        return self._style_rag.scan_global_library(
+            library_path=library_path,
+            authors=authors,
+            chunk_size=chunk_size,
+            max_chunks=max_chunks
+        )
+
+    def list_imported_authors(self) -> List[str]:
+        """列出已导入的所有作家"""
+        if not self.is_style_rag_enabled():
+            return []
+        return self._style_rag.list_imported_authors()
+
+    def get_style_context_by_author(
+        self,
+        scene_description: str,
+        author: str,
+        scene_type: Optional[str] = None,
+        n_samples: int = 3
+    ) -> Optional[Dict[str, Any]]:
+        """
+        获取指定作家风格的上下文
+
+        Args:
+            scene_description: 场景描述
+            author: 作家名
+            scene_type: 场景类型
+            n_samples: 样本数量
+
+        Returns:
+            风格上下文
+        """
+        if not self.is_style_rag_enabled():
+            return None
+        return self._style_rag.get_style_context_by_author(
+            scene_description=scene_description,
+            author=author,
+            scene_type=scene_type,
+            n_samples=n_samples
+        )
 
 
 # Convenience functions for direct use
@@ -1084,6 +1338,16 @@ def is_style_rag_enabled() -> bool:
     return get_engine().is_style_rag_enabled()
 
 
+def disable_style_rag() -> Dict[str, Any]:
+    """Disable RAG style system."""
+    return get_engine().disable_style_rag()
+
+
+def toggle_style_rag() -> Dict[str, Any]:
+    """Toggle RAG style system on/off."""
+    return get_engine().toggle_style_rag()
+
+
 def add_style_reference(title: str, content: str, author: str = None) -> Dict[str, Any]:
     """Add a reference novel to RAG system."""
     return get_engine().add_style_reference(title, content, author)
@@ -1102,3 +1366,148 @@ def remove_style_reference(ref_id: str) -> bool:
 def get_rag_statistics() -> Dict[str, Any]:
     """Get RAG system statistics."""
     return get_engine().get_rag_statistics()
+
+
+def add_style_reference_from_file(
+    file_path: str,
+    title: str = None,
+    author: str = None,
+    chunk_size: int = 500,
+    max_chunks: int = 200
+) -> Dict[str, Any]:
+    """
+    从文件添加参考小说到RAG系统
+
+    Args:
+        file_path: 文件路径（支持 .txt, .pdf, .epub）
+        title: 小说标题（可选，默认使用文件名）
+        author: 作者（可选）
+
+    Returns:
+        添加结果统计
+    """
+    return get_engine().add_style_reference_from_file(
+        file_path=file_path,
+        title=title,
+        author=author,
+        chunk_size=chunk_size,
+        max_chunks=max_chunks
+    )
+
+
+def scan_style_references_folder(
+    folder_path: str,
+    author: str = None,
+    chunk_size: int = 500,
+    max_chunks: int = 200,
+    skip_errors: bool = True
+) -> Dict[str, Any]:
+    """
+    扫描文件夹并导入所有支持的参考小说
+
+    Args:
+        folder_path: 文件夹路径
+        author: 默认作者（可选）
+        skip_errors: 是否跳过错误继续处理
+
+    Returns:
+        导入结果统计
+    """
+    return get_engine().scan_style_references_folder(
+        folder_path=folder_path,
+        author=author,
+        chunk_size=chunk_size,
+        max_chunks=max_chunks,
+        skip_errors=skip_errors
+    )
+
+
+# ==================== 全局资料库便捷函数 ====================
+
+def list_global_authors(library_path: str = None) -> List[Dict[str, Any]]:
+    """
+    列出全局资料库中的所有作家
+
+    默认路径: ~/style_references/
+    目录结构:
+        style_references/
+        ├── 马尔克斯/
+        │   ├── 百年孤独.epub
+        │   └── 霍乱时期的爱情.pdf
+        └── 余华/
+            └── 活着.txt
+    """
+    return get_engine().list_global_authors(library_path)
+
+
+def scan_author(
+    author_name: str,
+    library_path: str = None,
+    chunk_size: int = 500,
+    max_chunks: int = 200
+) -> Dict[str, Any]:
+    """
+    导入指定作家的所有作品
+
+    Example:
+        result = scan_author("马尔克斯")
+    """
+    return get_engine().scan_author(
+        author_name=author_name,
+        library_path=library_path,
+        chunk_size=chunk_size,
+        max_chunks=max_chunks
+    )
+
+
+def scan_global_library(
+    library_path: str = None,
+    authors: List[str] = None,
+    chunk_size: int = 500,
+    max_chunks: int = 200
+) -> Dict[str, Any]:
+    """
+    扫描整个全局资料库
+
+    Example:
+        # 导入所有作家
+        result = scan_global_library()
+
+        # 只导入指定作家
+        result = scan_global_library(authors=["马尔克斯", "余华"])
+    """
+    return get_engine().scan_global_library(
+        library_path=library_path,
+        authors=authors,
+        chunk_size=chunk_size,
+        max_chunks=max_chunks
+    )
+
+
+def list_imported_authors() -> List[str]:
+    """列出已导入的所有作家"""
+    return get_engine().list_imported_authors()
+
+
+def get_style_context_by_author(
+    scene_description: str,
+    author: str,
+    scene_type: str = None,
+    n_samples: int = 3
+) -> Dict[str, Any]:
+    """
+    获取指定作家风格的上下文
+
+    Example:
+        context = get_style_context_by_author(
+            scene_description="主角回忆童年往事",
+            author="马尔克斯",
+            scene_type="narrative"
+        )
+    """
+    return get_engine().get_style_context_by_author(
+        scene_description=scene_description,
+        author=author,
+        scene_type=scene_type,
+        n_samples=n_samples
+    )
